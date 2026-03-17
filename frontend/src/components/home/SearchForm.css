@@ -1,0 +1,111 @@
+.search-section {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 60%, #fefce8 100%);
+}
+
+.search-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.search-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--color-text);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.search-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.search-card {
+  width: 100%;
+  max-width: 580px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.search-fields {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.input-icon-wrap {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.form-input.with-icon {
+  padding-left: 2.25rem;
+}
+
+.input-error {
+  border-color: var(--color-danger) !important;
+}
+
+.swap-icon {
+  position: absolute;
+  right: -14px;
+  top: calc(50% - 14px);
+  width: 28px;
+  height: 28px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  z-index: 1;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.swap-icon:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.search-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  letter-spacing: 0.01em;
+}
+
+@media (min-width: 520px) {
+  .search-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search-fields .form-group:last-child {
+    grid-column: span 2;
+  }
+
+  .swap-icon {
+    top: 2.4rem;
+    right: -14px;
+  }
+}

@@ -1,0 +1,24 @@
+.notfound-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.notfound-icon {
+  font-size: 3.5rem;
+}
+
+.notfound-page h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.notfound-page p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}

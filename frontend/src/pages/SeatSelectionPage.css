@@ -1,0 +1,158 @@
+.seat-page {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.seat-page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 300px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.seat-page-error {
+  margin-top: 2rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  color: var(--color-danger);
+}
+
+.bus-details-card {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bus-details-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bus-details-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.bus-detail-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.bus-detail-sub {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.bus-detail-right {
+  text-align: right;
+}
+
+.bus-detail-route,
+.bus-detail-time {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.seat-page-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.seat-map-card {
+  padding: 1.5rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.booking-summary {
+  padding: 1.5rem;
+  position: sticky;
+  top: 76px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.summary-value {
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: right;
+}
+
+.summary-total {
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+}
+
+.total-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.reserve-error {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+  margin-bottom: 0.75rem;
+}
+
+.proceed-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.seats-note {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .seat-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-summary {
+    position: static;
+    order: -1;
+  }
+
+  .bus-detail-right {
+    text-align: left;
+  }
+}

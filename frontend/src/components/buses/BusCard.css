@@ -1,0 +1,108 @@
+.bus-card {
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.bus-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.bus-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bus-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bus-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: var(--color-text);
+}
+
+.bus-route {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.route-icon,
+.time-icon {
+  font-size: 0.8rem;
+}
+
+.bus-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.bus-time {
+  font-weight: 500;
+}
+
+.duration {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.bus-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.bus-card-right {
+  text-align: right;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.bus-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.bus-price-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.book-btn {
+  white-space: nowrap;
+  padding: 0.5rem 1.1rem;
+}
+
+@media (max-width: 520px) {
+  .bus-card-main {
+    flex-direction: column;
+  }
+  .bus-card-right {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .bus-price-label {
+    display: none;
+  }
+}

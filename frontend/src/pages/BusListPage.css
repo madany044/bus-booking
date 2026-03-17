@@ -1,0 +1,117 @@
+.buslist-page {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.buslist-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.buslist-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.buslist-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.back-btn {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.buslist-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.buslist-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.buslist-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.buslist-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  color: var(--color-danger);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.buslist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+}
+
+.buslist-empty h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.buslist-empty p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.buslist-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.page-info {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  min-width: 100px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .buslist-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-sidebar {
+    position: static;
+  }
+}
