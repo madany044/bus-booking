@@ -72,6 +72,7 @@ export default function SearchForm() {
               />
             </div>
             {errors.departureCity && <span className="error-text">{errors.departureCity}</span>}
+            <span className="form-hint">e.g. Bangalore, Chennai, Hosur, Vellore</span>
           </div>
 
           <div className="swap-icon" title="Swap cities" onClick={() => {

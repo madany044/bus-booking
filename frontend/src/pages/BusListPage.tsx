@@ -13,6 +13,7 @@ export default function BusListPage() {
   const departureCity = searchParams.get('departureCity') || '';
   const arrivalCity = searchParams.get('arrivalCity') || '';
   const date = searchParams.get('date') || '';
+  console.log('URL params:', { departureCity, arrivalCity, date }); // ADD THIS
 
   const [buses, setBuses] = useState<Bus[]>([]);
   const [filters, setFilters] = useState<BusFilters>({});
@@ -52,14 +53,22 @@ export default function BusListPage() {
     }
   }, [departureCity, arrivalCity, date, navigate]);
 
-  useEffect(() => {
-    setPage(1);
-    fetchBuses(1, filters);
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Initial load + whenever search params change
+useEffect(() => {
+  setPage(1);
+  fetchBuses(1, filters);
+}, [departureCity, arrivalCity, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    fetchBuses(page, filters);
-  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
+// When filters change
+useEffect(() => {
+  setPage(1);
+  fetchBuses(1, filters);
+}, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+// When page changes
+useEffect(() => {
+  fetchBuses(page, filters);
+}, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleFiltersChange(newFilters: BusFilters) {
     setFilters(newFilters);

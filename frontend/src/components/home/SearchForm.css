@@ -62,6 +62,11 @@
   border-color: var(--color-danger) !important;
 }
 
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
 .swap-icon {
   position: absolute;
   right: -14px;

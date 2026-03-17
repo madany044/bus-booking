@@ -14,7 +14,7 @@ export default function Navbar() {
         <div className="navbar-links">
           <Link to="/" className={location.pathname === '/' ? 'active' : ''}>Home</Link>
           <Link to="/bookings" className={location.pathname.startsWith('/bookings') ? 'active' : ''}>My Bookings</Link>
-          <a href="mailto:careers@appweave.tech">Contact</a>
+          <a href="#" onClick={(e) => e.preventDefault()}>Contact</a>
         </div>
       </div>
     </nav>
