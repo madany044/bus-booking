@@ -10,36 +10,24 @@ dotenv.config();
  
 const app = express();
 const PORT = process.env.PORT || 5000;
- 
-// Allowed origins — supports main Vercel URL + all preview URLs
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
- 
-// Extract base domain for wildcard matching e.g. "bus-booking-platform" from full URL
-function isAllowedOrigin(origin: string | undefined): boolean {
-  if (!origin) return true; // allow curl/Postman
-  if (origin === 'http://localhost:5173') return true;
-  if (origin === 'http://localhost:5174') return true;
-  if (origin === FRONTEND_URL) return true;
-  // Allow all Vercel preview deployments for the same project
-  // e.g. bus-booking-platform-7kij6zzb8-madans-projects-061a6083.vercel.app
-  try {
-    const mainHost = new URL(FRONTEND_URL).hostname; // e.g. bus-booking-platform-seven.vercel.app
-    const projectBase = mainHost.split('-seven.vercel.app')[0]   // e.g. bus-booking-platform
-                       || mainHost.split('.vercel.app')[0];
-    if (origin.includes(projectBase) && origin.includes('vercel.app')) return true;
-  } catch {
-    // ignore URL parse errors
-  }
-  return false;
-}
  
 app.use(cors({
   origin: (origin, callback) => {
-    if (isAllowedOrigin(origin)) {
+    // Allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+ 
+    const allowed =
+      origin === FRONTEND_URL ||
+      origin === 'http://localhost:5173' ||
+      origin === 'http://localhost:5174' ||
+      origin.endsWith('.vercel.app');  // allow ALL vercel preview URLs
+ 
+    if (allowed) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked: ${origin}`);
-      callback(new Error(`CORS: origin ${origin} not allowed`));
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('CORS: not allowed'));
     }
   },
   credentials: true,
