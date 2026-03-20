@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import routes from './routes';
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -10,29 +11,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // required for httpOnly cookies
 }));
 app.use(express.json());
+app.use(cookieParser());
 
-// Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// API routes
 app.use('/api', routes);
-
-// 404 handler
 app.use(notFound);
-
-// Error handler
 app.use(errorHandler);
 
-// Start server
 async function start() {
   try {
     await createTables();

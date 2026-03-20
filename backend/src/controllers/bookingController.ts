@@ -11,8 +11,8 @@ export async function createBooking(
   const client = await pool.connect();
   try {
     const { busId, seats, passengerDetails } = req.body as BookingRequest;
+    const userId = (req as any).user?.id || null;
 
-    // Validate
     if (!busId || !seats || !passengerDetails) {
       throw new AppError('busId, seats, and passengerDetails are required', 400);
     }
@@ -25,8 +25,6 @@ export async function createBooking(
     if (seats.length !== passengerDetails.length) {
       throw new AppError('Number of seats must match number of passengers', 400);
     }
-
-    // Validate passengers
     for (const p of passengerDetails) {
       if (!p.name || !p.age || !p.gender) {
         throw new AppError('Each passenger must have name, age, and gender', 400);
@@ -41,73 +39,60 @@ export async function createBooking(
 
     await client.query('BEGIN');
 
-    // Get bus and verify it exists
     const busResult = await client.query(
       'SELECT id, price FROM buses WHERE id = $1',
       [busId]
     );
-    if (busResult.rows.length === 0) {
-      throw new AppError('Bus not found', 404);
-    }
+    if (busResult.rows.length === 0) throw new AppError('Bus not found', 404);
     const busPrice = busResult.rows[0].price;
 
-    // Get seat IDs and verify availability
-    const seatResult = await client.query(
-      `SELECT s.id, s.seat_number,
-        CASE 
-          WHEN bs.seat_id IS NOT NULL THEN false
-          WHEN sr.seat_id IS NOT NULL AND sr.expires_at > NOW() THEN false
-          ELSE true
-        END as is_available
-       FROM seats s
-       LEFT JOIN booked_seats bs ON bs.seat_id = s.id
-       LEFT JOIN seat_reservations sr ON sr.seat_id = s.id AND sr.expires_at > NOW()
+    // Only block on hard bookings — not reservations
+    const hardBookedResult = await client.query(
+      `SELECT s.seat_number FROM seats s
+       JOIN booked_seats bs ON bs.seat_id = s.id
        WHERE s.bus_id = $1 AND s.seat_number = ANY($2::int[])`,
       [busId, seats]
     );
+    if (hardBookedResult.rows.length > 0) {
+      const nums = hardBookedResult.rows.map((s: any) => s.seat_number).join(', ');
+      throw new AppError(`Seats ${nums} are already booked`, 409);
+    }
 
+    const seatResult = await client.query(
+      `SELECT id, seat_number FROM seats WHERE bus_id = $1 AND seat_number = ANY($2::int[])`,
+      [busId, seats]
+    );
     if (seatResult.rows.length !== seats.length) {
       throw new AppError('One or more seat numbers are invalid', 400);
     }
 
-    const unavailable = seatResult.rows.filter((s) => !s.is_available);
-    if (unavailable.length > 0) {
-      const nums = unavailable.map((s) => s.seat_number).join(', ');
-      throw new AppError(`Seats ${nums} are not available`, 409);
-    }
-
     const totalPrice = busPrice * seats.length;
 
-    // Create booking
     const bookingResult = await client.query(
-      `INSERT INTO bookings (bus_id, total_price) VALUES ($1, $2) RETURNING id`,
-      [busId, totalPrice]
+      `INSERT INTO bookings (bus_id, total_price, user_id) VALUES ($1, $2, $3) RETURNING id`,
+      [busId, totalPrice, userId]
     );
     const bookingId = bookingResult.rows[0].id;
 
-    // Insert booked seats
     for (const seat of seatResult.rows) {
       await client.query(
         `INSERT INTO booked_seats (booking_id, seat_id, bus_id) VALUES ($1, $2, $3)`,
         [bookingId, seat.id, busId]
       );
-      // Remove reservation if exists
       await client.query(
         `DELETE FROM seat_reservations WHERE seat_id = $1`,
         [seat.id]
       );
     }
 
-    // Insert passengers
     for (const passenger of passengerDetails as Passenger[]) {
       await client.query(
         `INSERT INTO passengers (booking_id, name, age, gender) VALUES ($1, $2, $3, $4)`,
-        [bookingId, passenger.name, passenger.age, passenger.gender]
+        [bookingId, passenger.name.trim(), passenger.age, passenger.gender]
       );
     }
 
     await client.query('COMMIT');
-
     res.status(201).json({
       message: 'Booking successful',
       id: bookingId,
@@ -137,32 +122,30 @@ export async function reserveSeats(
 
     await client.query('BEGIN');
 
-    // Clean up expired reservations
+    // Clean expired reservations
     await client.query(`DELETE FROM seat_reservations WHERE expires_at <= NOW()`);
 
-    const seatResult = await client.query(
-      `SELECT s.id, s.seat_number,
-        CASE 
-          WHEN bs.seat_id IS NOT NULL THEN false
-          WHEN sr.seat_id IS NOT NULL AND sr.expires_at > NOW() THEN false
-          ELSE true
-        END as is_available
-       FROM seats s
-       LEFT JOIN booked_seats bs ON bs.seat_id = s.id
-       LEFT JOIN seat_reservations sr ON sr.seat_id = s.id AND sr.expires_at > NOW()
+    // Only block on hard bookings — allow overwriting reservations
+    const hardBookedResult = await client.query(
+      `SELECT s.seat_number FROM seats s
+       JOIN booked_seats bs ON bs.seat_id = s.id
        WHERE s.bus_id = $1 AND s.seat_number = ANY($2::int[])`,
       [busId, seats]
     );
-
-    const unavailable = seatResult.rows.filter((s) => !s.is_available);
-    if (unavailable.length > 0) {
-      throw new AppError(
-        `Seats ${unavailable.map((s) => s.seat_number).join(', ')} are not available`,
-        409
-      );
+    if (hardBookedResult.rows.length > 0) {
+      const nums = hardBookedResult.rows.map((s: any) => s.seat_number).join(', ');
+      throw new AppError(`Seats ${nums} are already booked`, 409);
     }
 
-    const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
+    const seatResult = await client.query(
+      `SELECT id, seat_number FROM seats WHERE bus_id = $1 AND seat_number = ANY($2::int[])`,
+      [busId, seats]
+    );
+    if (seatResult.rows.length !== seats.length) {
+      throw new AppError('One or more seat numbers are invalid', 400);
+    }
+
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     for (const seat of seatResult.rows) {
       await client.query(
@@ -174,7 +157,6 @@ export async function reserveSeats(
     }
 
     await client.query('COMMIT');
-
     res.json({
       message: 'Seats reserved for 2 minutes',
       expiresAt: expiresAt.toISOString(),
@@ -198,36 +180,29 @@ export async function getBookingById(
 
     const bookingResult = await pool.query(
       `SELECT bk.id, bk.bus_id, bk.total_price, bk.created_at,
-              b.name as bus_name, b.is_ac, b.price as seat_price
+              b.name as bus_name, b.is_ac
        FROM bookings bk
        JOIN buses b ON b.id = bk.bus_id
        WHERE bk.id = $1`,
       [bookingId]
     );
-
-    if (bookingResult.rows.length === 0) {
-      throw new AppError('Booking not found', 404);
-    }
+    if (bookingResult.rows.length === 0) throw new AppError('Booking not found', 404);
 
     const booking = bookingResult.rows[0];
 
-    const passengersResult = await pool.query(
-      `SELECT name, age, gender FROM passengers WHERE booking_id = $1`,
-      [bookingId]
-    );
-
-    const seatsResult = await pool.query(
-      `SELECT s.seat_number FROM booked_seats bs
-       JOIN seats s ON s.id = bs.seat_id
-       WHERE bs.booking_id = $1`,
-      [bookingId]
-    );
-
-    const stopsResult = await pool.query(
-      `SELECT stop_name, arrival_time, departure_time FROM stops
-       WHERE bus_id = $1 ORDER BY stop_order ASC`,
-      [booking.bus_id]
-    );
+    const [passengersResult, seatsResult, stopsResult] = await Promise.all([
+      pool.query(`SELECT name, age, gender FROM passengers WHERE booking_id = $1`, [bookingId]),
+      pool.query(
+        `SELECT s.seat_number FROM booked_seats bs
+         JOIN seats s ON s.id = bs.seat_id WHERE bs.booking_id = $1`,
+        [bookingId]
+      ),
+      pool.query(
+        `SELECT stop_name, arrival_time, departure_time FROM stops
+         WHERE bus_id = $1 ORDER BY stop_order ASC`,
+        [booking.bus_id]
+      ),
+    ]);
 
     res.json({
       id: booking.id,
@@ -236,14 +211,69 @@ export async function getBookingById(
       isAC: booking.is_ac,
       totalPrice: booking.total_price,
       createdAt: booking.created_at,
-      seatsBooked: seatsResult.rows.map((s) => s.seat_number),
+      seatsBooked: seatsResult.rows.map((s: any) => s.seat_number),
       passengers: passengersResult.rows,
-      stops: stopsResult.rows.map((s) => ({
+      stops: stopsResult.rows.map((s: any) => ({
         stopName: s.stop_name,
         ...(s.arrival_time && { arrivalTime: s.arrival_time }),
         ...(s.departure_time && { departureTime: s.departure_time }),
       })),
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getMyBookings(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const result = await pool.query(
+      `SELECT bk.id, bk.bus_id, bk.total_price, bk.created_at,
+              b.name as bus_name, b.is_ac
+       FROM bookings bk
+       JOIN buses b ON b.id = bk.bus_id
+       WHERE bk.user_id = $1
+       ORDER BY bk.created_at DESC`,
+      [userId]
+    );
+
+    const bookings = await Promise.all(
+      result.rows.map(async (bk: any) => {
+        const [seats, stops] = await Promise.all([
+          pool.query(
+            `SELECT s.seat_number FROM booked_seats bs
+             JOIN seats s ON s.id = bs.seat_id WHERE bs.booking_id = $1`,
+            [bk.id]
+          ),
+          pool.query(
+            `SELECT stop_name, arrival_time, departure_time FROM stops
+             WHERE bus_id = $1 ORDER BY stop_order ASC`,
+            [bk.bus_id]
+          ),
+        ]);
+        return {
+          id: bk.id,
+          busName: bk.bus_name,
+          isAC: bk.is_ac,
+          totalPrice: bk.total_price,
+          createdAt: bk.created_at,
+          seatsBooked: seats.rows.map((s: any) => s.seat_number),
+          stops: stops.rows.map((s: any) => ({
+            stopName: s.stop_name,
+            ...(s.arrival_time && { arrivalTime: s.arrival_time }),
+            ...(s.departure_time && { departureTime: s.departure_time }),
+          })),
+        };
+      })
+    );
+
+    res.json({ bookings });
   } catch (err) {
     next(err);
   }

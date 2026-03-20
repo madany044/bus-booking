@@ -5,7 +5,16 @@ export async function createTables(): Promise<void> {
   try {
     await client.query('BEGIN');
 
-    // Buses table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS buses (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -16,7 +25,6 @@ export async function createTables(): Promise<void> {
       );
     `);
 
-    // Stops table
     await client.query(`
       CREATE TABLE IF NOT EXISTS stops (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -28,7 +36,6 @@ export async function createTables(): Promise<void> {
       );
     `);
 
-    // Seats table
     await client.query(`
       CREATE TABLE IF NOT EXISTS seats (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -42,17 +49,21 @@ export async function createTables(): Promise<void> {
       );
     `);
 
-    // Bookings table
     await client.query(`
       CREATE TABLE IF NOT EXISTS bookings (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         bus_id UUID NOT NULL REFERENCES buses(id),
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
         total_price INTEGER NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
     `);
 
-    // Booked seats table
+    // Safe: add user_id to existing bookings table if not present
+    await client.query(`
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+    `);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS booked_seats (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -63,7 +74,6 @@ export async function createTables(): Promise<void> {
       );
     `);
 
-    // Passengers table
     await client.query(`
       CREATE TABLE IF NOT EXISTS passengers (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -74,7 +84,6 @@ export async function createTables(): Promise<void> {
       );
     `);
 
-    // Seat reservations (2-min timer locks)
     await client.query(`
       CREATE TABLE IF NOT EXISTS seat_reservations (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -87,7 +96,7 @@ export async function createTables(): Promise<void> {
     `);
 
     await client.query('COMMIT');
-    console.log('✅ Tables created successfully');
+    console.log('✅ Tables created/verified successfully');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error creating tables:', err);
