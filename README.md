@@ -59,7 +59,7 @@ A full-stack bus booking platform where users can search routes, select seats, b
 
 ## 🏃 Running Locally
 
-**Prerequisites:** Node.js 18+, PostgreSQL database (Neon free tier works)
+**Prerequisites:** Node.js 18+, PostgreSQL database (Neon)
 
 ```bash
 # Clone the repo
