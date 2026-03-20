@@ -98,11 +98,11 @@ export default function SeatSelectionPage() {
             <p className="bus-detail-sub">
               {bus.isAC ? 'AC' : 'Non-AC'} · {bus.seatTypes.join(', ')}
             </p>
-            {date && <p className="bus-detail-sub">📅 {date}</p>}
+            {date && <p className="bus-detail-sub"> {date}</p>}
           </div>
           <div className="bus-detail-right">
-            <p className="bus-detail-route">📍 {departureCity || bus.stops[0]?.stopName} → {arrivalCity || bus.stops[bus.stops.length - 1]?.stopName}</p>
-            <p className="bus-detail-time">🕐 {depTime} – {arrTime}</p>
+            <p className="bus-detail-route"> {departureCity || bus.stops[0]?.stopName} → {arrivalCity || bus.stops[bus.stops.length - 1]?.stopName}</p>
+            <p className="bus-detail-time"> {depTime} – {arrTime}</p>
           </div>
         </div>
       </div>
