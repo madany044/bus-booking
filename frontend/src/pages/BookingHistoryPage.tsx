@@ -106,10 +106,10 @@ export default function BookingHistoryPage() {
                     <div className="booking-item-info">
                       <h3 className="booking-bus-name">{bk.busName}</h3>
                       <p className="booking-route">
-                        📍 {bk.stops[0]?.stopName} → {bk.stops[bk.stops.length - 1]?.stopName}
+                         {bk.stops[0]?.stopName} → {bk.stops[bk.stops.length - 1]?.stopName}
                       </p>
                       <p className="booking-time">
-                        🕐 {getDepartureTime(bk.stops)} – {getArrivalTime(bk.stops)}
+                         {getDepartureTime(bk.stops)} – {getArrivalTime(bk.stops)}
                       </p>
                       <div className="booking-tags">
                         <span className="badge badge-gray">
@@ -224,7 +224,7 @@ function GuestLookup({
                 {lookedUpBooking.stops[0]?.stopName} → {lookedUpBooking.stops[lookedUpBooking.stops.length - 1]?.stopName}
               </p>
               <p className="result-time">
-                🕐 {getDepartureTime(lookedUpBooking.stops)} – {getArrivalTime(lookedUpBooking.stops)}
+                 {getDepartureTime(lookedUpBooking.stops)} – {getArrivalTime(lookedUpBooking.stops)}
               </p>
             </div>
             <div className="result-right">

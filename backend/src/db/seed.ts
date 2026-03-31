@@ -98,6 +98,17 @@ const busesData = [
     seatType: 'sleeper' as const,
     totalSeats: 30,
   },
+   {
+    name: 'KPB Travels',
+    is_ac: true,
+    price: 1800,
+    stops: [
+      { stop_name: 'Mumbai', departure_time: '08:30 PM', stop_order: 1 },
+      { stop_name: 'Bangalore', arrival_time: '04:30 AM', stop_order: 2 },
+    ],
+    seatType: 'sleeper' as const,
+    totalSeats: 30,
+  },
 ];
 
 function generateSeats(totalSeats: number, seatType: 'normal' | 'semi-sleeper' | 'sleeper') {

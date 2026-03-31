@@ -149,9 +149,9 @@ export default function BookingPage() {
             <h3 className="section-title">Bus Details</h3>
             <p className="info-bus-name">{bus.name}</p>
             <p className="info-row">{bus.isAC ? 'AC' : 'Non-AC'} · {bus.seatTypes.join(', ')}</p>
-            <p className="info-row">📍 {departureCity || bus.stops[0]?.stopName} → {arrivalCity || bus.stops[bus.stops.length - 1]?.stopName}</p>
-            {date && <p className="info-row">📅 {date}</p>}
-            <p className="info-row">🕐 {depTime} – {arrTime}</p>
+            <p className="info-row"> {departureCity || bus.stops[0]?.stopName} → {arrivalCity || bus.stops[bus.stops.length - 1]?.stopName}</p>
+            {date && <p className="info-row"> {date}</p>}
+            <p className="info-row"> {depTime} – {arrTime}</p>
           </div>
 
           <div className="card booking-info-card">
